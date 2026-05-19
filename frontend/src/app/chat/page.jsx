@@ -85,7 +85,7 @@ export default function ChatDashboard() {
   );
 
   return (
-    <div className="h-screen w-full bg-[#0a0a0c] overflow-hidden flex font-sans text-white p-2 md:p-4 gap-2 md:gap-4">
+    <div className="h-[100dvh] w-full bg-[#0a0a0c] overflow-hidden flex font-sans text-white pt-[calc(env(safe-area-inset-top)+8px)] pb-[calc(env(safe-area-inset-bottom)+8px)] pl-[calc(env(safe-area-inset-left)+8px)] pr-[calc(env(safe-area-inset-right)+8px)] md:p-4 gap-2 md:gap-4">
       
       {/* Pane 1: Sidebar (ChatList) */}
       <motion.div 

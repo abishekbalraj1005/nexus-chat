@@ -239,7 +239,7 @@ export default function ChatRoom({ chatUser, messages, myId, onBack, socket }) {
       </div>
 
       {/* Input */}
-      <div className="p-4 z-20 border-t border-white/5 bg-[#0a0a0c]/80 backdrop-blur-3xl relative">
+      <div className="p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] z-20 border-t border-white/5 bg-[#0a0a0c]/80 backdrop-blur-3xl relative">
         <AnimatePresence>
           {showEmojiPicker && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="absolute bottom-full mb-4 left-4 z-50 shadow-2xl rounded-2xl overflow-hidden border border-white/10">

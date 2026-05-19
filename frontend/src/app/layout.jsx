@@ -8,6 +8,14 @@ export const metadata = {
   description: 'Ultra-premium cinematic messaging platform.',
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning className="dark">
