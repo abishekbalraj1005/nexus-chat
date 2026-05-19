@@ -142,7 +142,7 @@ export default function ChatRoom({ chatUser, messages, myId, onBack, socket }) {
       {/* Header */}
       <div className="px-6 py-5 flex items-center justify-between z-20 sticky top-0 border-b border-white/5 bg-[#0a0a0c]/40 backdrop-blur-xl">
         <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-2 -ml-2 text-white/50 hover:text-white rounded-full transition-colors md:hidden">
+          <button onClick={onBack} className="p-2 -ml-2 text-white/50 hover:text-white rounded-full transition-colors flex items-center justify-center">
             <ChevronLeft size={24} />
           </button>
           <div className="flex flex-col">
