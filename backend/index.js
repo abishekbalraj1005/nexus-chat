@@ -15,7 +15,7 @@ app.use(express.json({ limit: '100mb' }));
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey123';
 
-mongoose.connect('mongodb://127.0.0.1:27017/personal-ai-chat')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/personal-ai-chat')
   .then(async () => {
     console.log('Connected to MongoDB');
     const aiExists = await User.findOne({ isAI: true });
