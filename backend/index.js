@@ -170,13 +170,16 @@ io.on('connection', async (socket) => {
 
   socket.on('send-message', async (data) => {
     try {
+      const receiver = await User.findById(data.receiverId);
+      const isOnline = receiver && receiver.socketId;
+
       const messageDoc = await Message.create({
         senderId: me._id,
         receiverId: data.receiverId,
         text: data.text,
         audioData: data.audioBlob ? Buffer.from(data.audioBlob) : null,
         imageBase64: data.imageBase64 || null,
-        status: 'sent'
+        status: isOnline ? 'delivered' : 'sent'
       });
 
       const message = {
@@ -192,7 +195,6 @@ io.on('connection', async (socket) => {
       
       socket.emit('new-message', message);
 
-      const receiver = await User.findById(data.receiverId);
       if (receiver && receiver.socketId) {
         io.to(receiver.socketId).emit('new-message', message);
       }
@@ -245,6 +247,30 @@ io.on('connection', async (socket) => {
 
   socket.on('typing-stop', (receiverId) => {
     socket.broadcast.emit('user-typing', { userId: me._id.toString(), receiverId, isTyping: false });
+  });
+
+  socket.on('mark-read', async ({ senderId }) => {
+    try {
+      await Message.updateMany(
+        { senderId: new mongoose.Types.ObjectId(senderId), receiverId: me._id, status: { $ne: 'read' } },
+        { $set: { status: 'read' } }
+      );
+
+      const sender = await User.findById(senderId);
+      if (sender && sender.socketId) {
+        io.to(sender.socketId).emit('messages-read', {
+          senderId,
+          receiverId: me._id.toString()
+        });
+      }
+
+      socket.emit('messages-read', {
+        senderId,
+        receiverId: me._id.toString()
+      });
+    } catch (err) {
+      console.error('Error marking messages as read:', err);
+    }
   });
 
   socket.on('disconnect', async () => {

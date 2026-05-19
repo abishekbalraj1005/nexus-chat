@@ -59,6 +59,15 @@ export default function ChatDashboard() {
         newSocket.on('user-typing', ({ userId, isTyping }) => {
           setUsers(prev => prev.map(u => u.id === userId ? { ...u, isTyping } : u));
         });
+        
+        newSocket.on('messages-read', ({ senderId, receiverId }) => {
+          setMessages(prev => prev.map(m => {
+            if (m.senderId === senderId && m.receiverId === receiverId) {
+              return { ...m, status: 'read' };
+            }
+            return m;
+          }));
+        });
 
       })
       .catch(() => {

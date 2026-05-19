@@ -27,6 +27,15 @@ export default function ChatRoom({ chatUser, messages, myId, onBack, socket }) {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, isRecording]);
 
+  useEffect(() => {
+    if (socket && chatUser) {
+      const hasUnread = chatMessages.some(m => m.senderId === chatUser.id && m.status !== 'read');
+      if (hasUnread) {
+        socket.emit('mark-read', { senderId: chatUser.id });
+      }
+    }
+  }, [chatUser, socket, chatMessages]);
+
   const handleSendText = () => {
     if (!inputText.trim()) return;
     socket.emit('send-message', { receiverId: chatUser.id, text: inputText, imageBase64: null, audioBlob: null });
