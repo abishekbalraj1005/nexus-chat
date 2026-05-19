@@ -27,14 +27,7 @@ export default function ChatRoom({ chatUser, messages, myId, onBack, socket }) {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, isRecording]);
 
-  useEffect(() => {
-    if (socket && chatUser) {
-      const hasUnread = chatMessages.some(m => m.senderId === chatUser.id && m.status !== 'read');
-      if (hasUnread) {
-        socket.emit('mark-read', { senderId: chatUser.id });
-      }
-    }
-  }, [chatUser, socket, chatMessages]);
+
 
   const handleSendText = () => {
     if (!inputText.trim()) return;
@@ -133,6 +126,15 @@ export default function ChatRoom({ chatUser, messages, myId, onBack, socket }) {
     (m.senderId === chatUser.id && m.receiverId === myId) || 
     (m.senderId === myId && m.receiverId === chatUser.id)
   );
+
+  useEffect(() => {
+    if (socket && chatUser) {
+      const hasUnread = chatMessages.some(m => m.senderId === chatUser.id && m.status !== 'read');
+      if (hasUnread) {
+        socket.emit('mark-read', { senderId: chatUser.id });
+      }
+    }
+  }, [chatUser, socket, chatMessages]);
 
   return (
     <div className="h-full w-full flex flex-col bg-transparent relative font-sans">
