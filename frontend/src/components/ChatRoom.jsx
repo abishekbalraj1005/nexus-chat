@@ -248,30 +248,7 @@ export default function ChatRoom({ chatUser, messages, myId, onBack, socket }) {
           )}
         </AnimatePresence>
 
-        <AnimatePresence>
-          {isRecording && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className="absolute -top-16 left-1/2 -translate-x-1/2 glass-panel px-6 py-3 rounded-full flex items-center gap-4 text-blue-400 border border-blue-400/30 shadow-[0_0_40px_rgba(59,130,246,0.3)]"
-            >
-              <div className="flex gap-1 items-center h-6">
-                {[...Array(12)].map((_, i) => (
-                  <motion.div key={i} className="w-1 bg-blue-400 rounded-full" animate={{ height: `${Math.max(10, Math.random() * volumeLevel)}%` }} transition={{ duration: 0.1 }} style={{ minHeight: '4px', height: '24px' }} />
-                ))}
-              </div>
-              <span className="font-bold tracking-widest text-xs animate-pulse">RECORDING</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         <div className="flex items-end gap-3 max-w-4xl mx-auto w-full">
-          <button onClick={() => fileInputRef.current?.click()} className="p-3 text-white/40 hover:text-white transition-colors mb-0.5 rounded-full hover:bg-white/5">
-            <Paperclip size={22} />
-          </button>
-          <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} className="hidden" />
-          
           <div className="flex-1 bg-white/5 border border-white/10 rounded-3xl flex items-end px-2 py-1.5 transition-all focus-within:border-white/30 focus-within:bg-white/[0.07] shadow-inner">
             <button onClick={() => setShowEmojiPicker(!showEmojiPicker)} className="p-2 text-white/40 hover:text-white transition-colors self-end mb-1 rounded-full">
               <Smile size={22} />
@@ -285,25 +262,17 @@ export default function ChatRoom({ chatUser, messages, myId, onBack, socket }) {
               className="w-full bg-transparent border-none outline-none text-white resize-none max-h-32 py-2.5 px-3 font-medium text-[16px]"
               style={{ minHeight: '44px' }}
             />
-            <AnimatePresence>
-              {inputText.trim() && (
-                <motion.button initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} onClick={handleSendText} className="p-2.5 mb-0.5 bg-white text-black rounded-full self-end shadow-lg hover:scale-105 active:scale-95 transition-transform flex-shrink-0">
-                  <Send size={18} className="ml-0.5" />
-                </motion.button>
+            <button 
+              disabled={!inputText.trim()} 
+              onClick={handleSendText} 
+              className={clsx(
+                "p-2.5 mb-0.5 rounded-full self-end transition-all flex-shrink-0",
+                inputText.trim() ? "bg-white text-black shadow-lg hover:scale-105 active:scale-95 cursor-pointer" : "bg-white/5 text-white/20 cursor-not-allowed"
               )}
-            </AnimatePresence>
+            >
+              <Send size={18} className="ml-0.5" />
+            </button>
           </div>
-
-          {!inputText.trim() && (
-             <div className="relative mb-0.5">
-              <AnimatePresence>
-                {isRecording && <motion.div initial={{ scale: 1, opacity: 0 }} animate={{ scale: 2, opacity: 0.2 }} exit={{ scale: 1, opacity: 0 }} transition={{ duration: 1.5, repeat: Infinity }} className="absolute inset-0 bg-blue-500 rounded-full z-0" />}
-              </AnimatePresence>
-              <button onPointerDown={startRecording} onPointerUp={stopRecording} onPointerLeave={stopRecording} className={clsx("p-3.5 rounded-full transition-all duration-300 z-10 relative touch-none flex-shrink-0 border", isRecording ? "bg-blue-500 text-white scale-110 shadow-[0_0_30px_rgba(59,130,246,0.6)] border-transparent" : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border-white/10")}>
-                <Mic size={22} weight={isRecording ? "fill" : "regular"} />
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>
