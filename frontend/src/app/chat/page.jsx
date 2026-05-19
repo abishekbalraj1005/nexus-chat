@@ -69,6 +69,10 @@ export default function ChatDashboard() {
           }));
         });
 
+        newSocket.on('message-deleted', ({ messageId }) => {
+          setMessages(prev => prev.filter(m => m.id !== messageId));
+        });
+
       })
       .catch(() => {
         localStorage.removeItem('token');

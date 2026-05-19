@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Phone, Video, Mic, Send, Smile, Paperclip, Check, CheckCheck, Play, Square } from 'lucide-react';
+import { ChevronLeft, Mic, Send, Smile, Paperclip, Check, CheckCheck, Play, Square, Trash, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import clsx from 'clsx';
 import EmojiPicker from 'emoji-picker-react';
@@ -28,6 +28,12 @@ export default function ChatRoom({ chatUser, messages, myId, onBack, socket }) {
   }, [messages, isRecording]);
 
 
+
+  const handleDeleteMessage = (messageId) => {
+    if (socket) {
+      socket.emit('delete-message', { messageId });
+    }
+  };
 
   const handleSendText = () => {
     if (!inputText.trim()) return;
@@ -155,10 +161,7 @@ export default function ChatRoom({ chatUser, messages, myId, onBack, socket }) {
             </span>
           </div>
         </div>
-        <div className="flex gap-2 text-white/50">
-          <button className="p-2 hover:bg-white/5 hover:text-white rounded-full transition-colors"><Phone size={20} /></button>
-          <button className="p-2 hover:bg-white/5 hover:text-white rounded-full transition-colors"><Video size={20} /></button>
-        </div>
+
       </div>
 
       {/* Messages */}
@@ -185,37 +188,59 @@ export default function ChatRoom({ chatUser, messages, myId, onBack, socket }) {
               ) : null}
 
               <div className="flex flex-col gap-1.5 w-full">
-                <div className={clsx(
-                  "px-5 py-3.5 text-[15px] leading-relaxed relative w-fit max-w-full shadow-2xl backdrop-blur-xl",
-                  isMe ? "bg-white text-black rounded-3xl rounded-br-sm ml-auto" : "glass-panel text-white rounded-3xl rounded-bl-sm",
-                  (msg.audioBlob || msg.imageBase64) && "!p-1.5"
-                )}>
-                  {msg.imageBase64 ? (
-                    <img src={msg.imageBase64} alt="Shared" className="rounded-2xl max-w-full max-h-[300px] object-cover" />
-                  ) : msg.audioBlob ? (
-                    <div className="flex items-center gap-3 p-2 min-w-[220px]">
-                      <button 
-                        onClick={() => playVoiceNote(msg.id, msg.audioBlob)} 
-                        className={clsx("w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-transform active:scale-90", isMe ? "bg-black text-white" : "bg-white text-black")}
-                      >
-                        {playingAudioId === msg.id ? <Square size={16} className="fill-current" /> : <Play size={18} className="ml-1 fill-current" />}
-                      </button>
-                      <div className="flex-1 flex flex-col justify-center gap-1.5">
-                        <div className="flex items-center gap-[3px] h-4">
-                          {[...Array(15)].map((_, idx) => (
-                            <motion.div 
-                              key={idx} 
-                              className={clsx("w-1 rounded-full", isMe ? "bg-black/80" : "bg-white/80")} 
-                              initial={{ height: "20%" }} 
-                              animate={{ height: playingAudioId === msg.id ? `${20 + Math.random() * 80}%` : "20%" }} 
-                              transition={{ duration: playingAudioId === msg.id ? 0.2 : 0, repeat: playingAudioId === msg.id ? Infinity : 0, repeatType: "reverse" }} 
-                            />
-                          ))}
+                <div className={clsx("group relative flex items-center gap-2 w-full", isMe ? "justify-end" : "justify-start")}>
+                  {isMe && (
+                    <button 
+                      onClick={() => handleDeleteMessage(msg.id)}
+                      className="opacity-0 group-hover:opacity-100 p-2 text-white/30 hover:text-red-400 hover:bg-white/5 rounded-full transition-all duration-200 cursor-pointer flex-shrink-0"
+                      title="Delete message"
+                    >
+                      <Trash size={15} />
+                    </button>
+                  )}
+
+                  <div className={clsx(
+                    "px-5 py-3.5 text-[15px] leading-relaxed relative w-fit max-w-[85%] shadow-2xl backdrop-blur-xl",
+                    isMe ? "bg-white text-black rounded-3xl rounded-br-sm" : "glass-panel text-white rounded-3xl rounded-bl-sm",
+                    (msg.audioBlob || msg.imageBase64) && "!p-1.5"
+                  )}>
+                    {msg.imageBase64 ? (
+                      <img src={msg.imageBase64} alt="Shared" className="rounded-2xl max-w-full max-h-[300px] object-cover" />
+                    ) : msg.audioBlob ? (
+                      <div className="flex items-center gap-3 p-2 min-w-[220px]">
+                        <button 
+                          onClick={() => playVoiceNote(msg.id, msg.audioBlob)} 
+                          className={clsx("w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-transform active:scale-90", isMe ? "bg-black text-white" : "bg-white text-black")}
+                        >
+                          {playingAudioId === msg.id ? <Square size={16} className="fill-current" /> : <Play size={18} className="ml-1 fill-current" />}
+                        </button>
+                        <div className="flex-1 flex flex-col justify-center gap-1.5">
+                          <div className="flex items-center gap-[3px] h-4">
+                            {[...Array(15)].map((_, idx) => (
+                              <motion.div 
+                                key={idx} 
+                                className={clsx("w-1 rounded-full", isMe ? "bg-black/80" : "bg-white/80")} 
+                                initial={{ height: "20%" }} 
+                                animate={{ height: playingAudioId === msg.id ? `${20 + Math.random() * 80}%` : "20%" }} 
+                                transition={{ duration: playingAudioId === msg.id ? 0.2 : 0, repeat: playingAudioId === msg.id ? Infinity : 0, repeatType: "reverse" }} 
+                              />
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ) : (
-                    <p className="break-words tracking-tight">{msg.text}</p>
+                    ) : (
+                      <p className="break-words tracking-tight">{msg.text}</p>
+                    )}
+                  </div>
+
+                  {!isMe && (
+                    <button 
+                      onClick={() => handleDeleteMessage(msg.id)}
+                      className="opacity-0 group-hover:opacity-100 p-2 text-white/30 hover:text-red-400 hover:bg-white/5 rounded-full transition-all duration-200 cursor-pointer flex-shrink-0"
+                      title="Delete message"
+                    >
+                      <Trash size={15} />
+                    </button>
                   )}
                 </div>
                 <div className={clsx("flex items-center gap-1 text-[11px] text-white/30 px-2 font-semibold tracking-wider", isMe && "justify-end")}>

@@ -273,6 +273,27 @@ io.on('connection', async (socket) => {
     }
   });
 
+  socket.on('delete-message', async ({ messageId }) => {
+    try {
+      const message = await Message.findById(messageId);
+      if (message) {
+        if (message.senderId.toString() === me._id.toString() || message.receiverId.toString() === me._id.toString()) {
+          await Message.findByIdAndDelete(messageId);
+          
+          socket.emit('message-deleted', { messageId });
+          
+          const receiverId = message.senderId.toString() === me._id.toString() ? message.receiverId : message.senderId;
+          const receiver = await User.findById(receiverId);
+          if (receiver && receiver.socketId) {
+            io.to(receiver.socketId).emit('message-deleted', { messageId });
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error deleting message:', err);
+    }
+  });
+
   socket.on('disconnect', async () => {
     me.online = false;
     me.lastSeen = new Date();
